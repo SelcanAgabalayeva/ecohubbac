@@ -37,4 +37,10 @@ public class ContactServiceImpl implements ContactService {
                 .orElseThrow(() -> new RuntimeException("Mesaj tapılmadı: ID " + id));
         contactRepository.delete(message);
     }
+
+    @Override
+    public ContactMessage getMessageById(Long id) {
+        return contactRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Mesaj tapılmadı. ID: " + id));
+    }
 }

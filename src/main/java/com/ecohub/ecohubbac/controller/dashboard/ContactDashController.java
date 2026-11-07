@@ -15,7 +15,10 @@ import java.util.List;
 public class ContactDashController {
 
     private final ContactService contactService;
-
+    @GetMapping("/{id}")
+    public ResponseEntity<ContactMessage> getMessageById(@PathVariable Long id) {
+        return ResponseEntity.ok(contactService.getMessageById(id));
+    }
     @PostMapping
     public ResponseEntity<String> sendadminMessage(@RequestBody ContactRequestDTO requestDTO) {
         contactService.sendMessage(requestDTO);

@@ -21,7 +21,10 @@ public class PartnerAdminController {
     public ResponseEntity<List<PartnerResponseDTO>> getAllPartnersForAdmin() {
         return ResponseEntity.ok(partnerService.getAllPartners());
     }
-
+    @GetMapping("/{id}")
+    public ResponseEntity<PartnerResponseDTO> getPartnerById(@PathVariable Long id) {
+        return ResponseEntity.ok(partnerService.getPartnerById(id));
+    }
     @PostMapping
     public ResponseEntity<PartnerResponseDTO> createPartner(@RequestBody PartnerRequestDTO requestDTO) {
         return ResponseEntity.ok(partnerService.createPartner(requestDTO));

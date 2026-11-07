@@ -3,6 +3,7 @@ package com.ecohub.ecohubbac.service;
 
 import com.ecohub.ecohubbac.dto.ContactRequestDTO;
 import com.ecohub.ecohubbac.entity.ContactMessage;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
@@ -12,4 +13,5 @@ public interface ContactService {
     void deleteMessage(Long id);
 
 
+    ContactMessage getMessageById(Long id);
 }

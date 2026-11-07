@@ -1,5 +1,6 @@
 package com.ecohub.ecohubbac.controller.dashboard;
 
+import com.ecohub.ecohubbac.dto.ProjectDetailResponseDTO;
 import com.ecohub.ecohubbac.dto.ProjectResponseDTO;
 import com.ecohub.ecohubbac.entity.Project;
 import com.ecohub.ecohubbac.service.ProjectService;
@@ -14,11 +15,14 @@ import java.util.List;
 public class ProjectDashController {
     private final ProjectService projectService;
 
-
     @GetMapping
     public ResponseEntity<List<ProjectResponseDTO>> getProject(
             @RequestParam(required = false, defaultValue = "Hamısı") String category) {
         return ResponseEntity.ok(projectService.getProjectsByCategory(category));
+    }
+    @GetMapping("/{id}")
+    public ResponseEntity<ProjectDetailResponseDTO> getProjectById(@PathVariable String id) {
+        return ResponseEntity.ok(projectService.getProjectById(id));
     }
     @PostMapping
     public ResponseEntity<Project> createProject(@RequestBody Project project) {
