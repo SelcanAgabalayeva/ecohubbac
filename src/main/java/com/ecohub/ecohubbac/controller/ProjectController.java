@@ -16,7 +16,11 @@ import java.util.List;
 public class ProjectController {
 
     private final ProjectService projectService;
-
+    @GetMapping("/all")
+    public ResponseEntity<List<ProjectResponseDTO>> getAllProjects() {
+        List<ProjectResponseDTO> projects = projectService.getAllProjects();
+        return ResponseEntity.ok(projects);
+    }
     @GetMapping
     public ResponseEntity<List<ProjectResponseDTO>> getProjects(
             @RequestParam(required = false, defaultValue = "Hamısı") String category) {

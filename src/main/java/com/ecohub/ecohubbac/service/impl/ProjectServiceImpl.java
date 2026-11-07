@@ -9,6 +9,7 @@ import com.ecohub.ecohubbac.service.ProjectService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -100,5 +101,28 @@ public class ProjectServiceImpl implements ProjectService {
         Project project = projectRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Layihə tapılmadı: " + id));
         projectRepository.delete(project);
+    }
+
+    public List<ProjectResponseDTO> getAllProjects() {
+        List<Project> projects = projectRepository.findAll();
+
+        List<ProjectResponseDTO> dtoList = new ArrayList<>();
+        for (Project project : projects) {
+            ProjectResponseDTO dto = new ProjectResponseDTO();
+            dto.setNumber(project.getId());
+
+            dto.setTitle(project.getTitle());
+            dto.setDescription(project.getDescription());
+
+            if (project.getCategory() != null) {
+                dto.setCategory(project.getCategory().getName());
+            }
+
+            dto.setImage(project.getImageUrl());
+
+            dtoList.add(dto);
+        }
+
+        return dtoList;
     }
 }
