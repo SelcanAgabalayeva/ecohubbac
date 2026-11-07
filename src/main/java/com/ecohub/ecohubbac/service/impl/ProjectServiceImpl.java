@@ -5,9 +5,11 @@ import com.ecohub.ecohubbac.entity.Category;
 import com.ecohub.ecohubbac.entity.Project;
 import com.ecohub.ecohubbac.repository.CategoryRepository;
 import com.ecohub.ecohubbac.repository.ProjectRepository;
+import com.ecohub.ecohubbac.service.FileService;
 import com.ecohub.ecohubbac.service.ProjectService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +21,7 @@ public class ProjectServiceImpl implements ProjectService {
 
     private final ProjectRepository projectRepository;
     private final CategoryRepository categoryRepository;
+    private final FileService fileService;
 
     @Override
     public List<ProjectResponseDTO> getProjectsByCategory(String categoryName) {
@@ -65,18 +68,24 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public Project createProject(Project project) {
-        // Əgər kateqoriya ID-si göndərilibsə, bazadan həmin kateqoriyanı tapıb əlavə edirik
+    public Project createProject(Project project, MultipartFile file) {
         if (project.getCategory() != null && project.getCategory().getId() != null) {
             Category category = categoryRepository.findById(project.getCategory().getId())
                     .orElseThrow(() -> new RuntimeException("Kateqoriya tapılmadı"));
             project.setCategory(category);
         }
+
+        // Əgər şəkil yüklənibsə:
+        if (file != null && !file.isEmpty()) {
+            String imageUrl = fileService.uploadFile(file); // Fayl yükləmə servisiniz
+            project.setImageUrl(imageUrl);
+        }
+
         return projectRepository.save(project);
     }
 
     @Override
-    public Project updateProject(String id, Project projectDetails) {
+    public Project updateProject(String id, Project projectDetails, MultipartFile file) {
         Project existingProject = projectRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Layihə tapılmadı: " + id));
 
@@ -84,9 +93,18 @@ public class ProjectServiceImpl implements ProjectService {
         existingProject.setSubtitle(projectDetails.getSubtitle());
         existingProject.setDescription(projectDetails.getDescription());
         existingProject.setMission(projectDetails.getMission());
-        existingProject.setImageUrl(projectDetails.getImageUrl());
         existingProject.setActivities(projectDetails.getActivities());
 
+        // Əgər istifadəçi yeni şəkil yükləyibsə, Cloudinary-ə yükləyib linki yeniləyirik:
+        if (file != null && !file.isEmpty()) {
+            String imageUrl = fileService.uploadFile(file);
+            existingProject.setImageUrl(imageUrl);
+        } else if (projectDetails.getImageUrl() != null) {
+            // Əgər fayl göndərilməyibsə amma JSON-da imageUrl gəlibsə onu da saxlaya bilərik
+            existingProject.setImageUrl(projectDetails.getImageUrl());
+        }
+
+        // Kateqoriya yoxlanışı
         if (projectDetails.getCategory() != null && projectDetails.getCategory().getId() != null) {
             Category category = categoryRepository.findById(projectDetails.getCategory().getId())
                     .orElseThrow(() -> new RuntimeException("Kateqoriya tapılmadı"));
@@ -95,7 +113,6 @@ public class ProjectServiceImpl implements ProjectService {
 
         return projectRepository.save(existingProject);
     }
-
     @Override
     public void deleteProject(String id) {
         Project project = projectRepository.findById(id)
