@@ -2,9 +2,12 @@ package com.ecohub.ecohubbac.controller.dashboard;
 
 import com.ecohub.ecohubbac.entity.News;
 import com.ecohub.ecohubbac.service.NewsService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -19,15 +22,38 @@ public class NewsDashController {
     public ResponseEntity<List<News>> getAllNewsForAdmin() {
         return ResponseEntity.ok(newsService.getAllNews());
     }
-    @PostMapping
-    public ResponseEntity<News> createNews(@RequestBody News news) {
-        News savedNews = newsService.createNews(news);
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<News> createNews(
+            @RequestPart("news") String newsJson,
+            @RequestPart(value = "file", required = false) MultipartFile file) {
+
+        News savedNews;
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            News news = objectMapper.readValue(newsJson, News.class);
+            savedNews = newsService.createNews(news, file);
+        } catch (Exception e) {
+            throw new RuntimeException("News JSON formatı səhvdir: " + e.getMessage());
+        }
+
         return ResponseEntity.ok(savedNews);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<News> updateNews(@PathVariable Long id, @RequestBody News newsDetails) {
-        News updatedNews = newsService.updateNews(id, newsDetails);
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<News> updateNews(
+            @PathVariable Long id,
+            @RequestPart("news") String newsJson,
+            @RequestPart(value = "file", required = false) MultipartFile file) {
+
+        News updatedNews;
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            News newsDetails = objectMapper.readValue(newsJson, News.class);
+            updatedNews = newsService.updateNews(id, newsDetails, file);
+        } catch (Exception e) {
+            throw new RuntimeException("News JSON formatı səhvdir: " + e.getMessage());
+        }
+
         return ResponseEntity.ok(updatedNews);
     }
 

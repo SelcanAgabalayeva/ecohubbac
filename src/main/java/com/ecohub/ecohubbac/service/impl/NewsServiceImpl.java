@@ -6,9 +6,11 @@ import com.ecohub.ecohubbac.entity.News;
 import com.ecohub.ecohubbac.entity.NewsCategory;
 import com.ecohub.ecohubbac.repository.NewsCategoryRepository;
 import com.ecohub.ecohubbac.repository.NewsRepository;
+import com.ecohub.ecohubbac.service.FileService;
 import com.ecohub.ecohubbac.service.NewsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,6 +21,7 @@ public class NewsServiceImpl implements NewsService {
 
     private final NewsRepository newsRepository;
     private final NewsCategoryRepository newsCategoryRepository;
+    private final FileService fileService;
 
     @Override
     public List<NewsResponseDTO> getNewsByCategory(String categoryName) {
@@ -66,17 +69,24 @@ public class NewsServiceImpl implements NewsService {
     }
 
     @Override
-    public News createNews(News news) {
+    public News createNews(News news, MultipartFile file) {
         if (news.getCategory() != null && news.getCategory().getId() != null) {
             NewsCategory category = newsCategoryRepository.findById(news.getCategory().getId())
                     .orElseThrow(() -> new RuntimeException("Kateqoriya tapılmadı"));
             news.setCategory(category);
         }
+
+        // Əgər şəkil yüklənibsə, Cloudinary-ə göndəririk:
+        if (file != null && !file.isEmpty()) {
+            String imageUrl = fileService.uploadFile(file);
+            news.setImageUrl(imageUrl);
+        }
+
         return newsRepository.save(news);
     }
 
     @Override
-    public News updateNews(Long id, News newsDetails) {
+    public News updateNews(Long id, News newsDetails, MultipartFile file) {
         News existingNews = newsRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Xəbər tapılmadı: ID " + id));
 
@@ -85,7 +95,14 @@ public class NewsServiceImpl implements NewsService {
         existingNews.setDescription(newsDetails.getDescription());
         existingNews.setContent(newsDetails.getContent());
         existingNews.setDate(newsDetails.getDate());
-        existingNews.setImageUrl(newsDetails.getImageUrl());
+
+        // Əgər yeni şəkil yüklənibsə Cloudinary-ə yükləyirik, əks halda köhnə imageUrl qalır
+        if (file != null && !file.isEmpty()) {
+            String imageUrl = fileService.uploadFile(file);
+            existingNews.setImageUrl(imageUrl);
+        } else if (newsDetails.getImageUrl() != null) {
+            existingNews.setImageUrl(newsDetails.getImageUrl());
+        }
 
         if (newsDetails.getCategory() != null && newsDetails.getCategory().getId() != null) {
             NewsCategory category = newsCategoryRepository.findById(newsDetails.getCategory().getId())

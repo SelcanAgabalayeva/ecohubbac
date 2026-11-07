@@ -1,5 +1,6 @@
 package com.ecohub.ecohubbac.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -18,7 +19,7 @@ public class NewsCategory {
 
     @Column(nullable = false, unique = true)
     private String name;
-
+    @JsonIgnore
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
     private List<News> newsList;
 }
