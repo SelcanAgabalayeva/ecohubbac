@@ -25,6 +25,11 @@ public class VolunteerAdminController {
         return ResponseEntity.ok(volunteerService.getVolunteerById(id));
     }
 
+    @PutMapping("/{id}/status")
+    public ResponseEntity<String> updateVolunteerStatus(@PathVariable Long id, @RequestParam String status) {
+        volunteerService.updateStatus(id, status);
+        return ResponseEntity.ok("Müraciət statusu uğurla yeniləndi: " + status);
+    }
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteVolunteer(@PathVariable Long id) {
         volunteerService.deleteVolunteer(id);

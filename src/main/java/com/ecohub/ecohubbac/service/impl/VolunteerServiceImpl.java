@@ -71,6 +71,15 @@ public class VolunteerServiceImpl implements VolunteerService {
         volunteerRepository.delete(volunteer);
     }
 
+    @Override
+    public void updateStatus(Long id, String status) {
+        Volunteer volunteer = volunteerRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Müraciət tapılmadı. ID: " + id));
+
+        volunteer.setStatus(status);
+        volunteerRepository.save(volunteer);
+    }
+
     private VolunteerResponseDTO mapToResponseDTO(Volunteer v) {
         VolunteerResponseDTO dto = new VolunteerResponseDTO();
         dto.setId(v.getId());

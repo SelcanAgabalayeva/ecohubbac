@@ -9,4 +9,7 @@ public interface VolunteerService {
     List<VolunteerResponseDTO> getAllVolunteers();
     VolunteerResponseDTO getVolunteerById(Long id);
     void deleteVolunteer(Long id);
+
+    void updateStatus(Long id, String status);
+
 }

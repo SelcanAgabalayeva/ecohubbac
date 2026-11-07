@@ -12,12 +12,12 @@ public class DashboardService {
     private final VolunteerRepository volunteerRepository;
     private final ProjectRepository projectRepository;
 
+
     public DashboardStatsDTO getDashboardStats() {
-        long totalVolunteers = volunteerRepository.count();
-        // Baza statuslarınıza uyğun yazın (məsələn: "PENDING", "BEKLIYOR" və ya Azərbaycan dilində "Gözləmədə")
-        long newVolunteers = volunteerRepository.countByStatus("PENDING");
-        long acceptedVolunteers = volunteerRepository.countByStatus("ACCEPTED");
-        long totalProjects = projectRepository.count();
+        long totalVolunteers = volunteerRepository.count(); // Ümumi müraciətlər
+        long newVolunteers = volunteerRepository.countByStatus("Yeni"); // Yeni müraciətlər
+        long acceptedVolunteers = volunteerRepository.countByStatus("Qəbul edildi"); // Qəbul edilənlər
+        long totalProjects = projectRepository.count(); // Layihələr
 
         return new DashboardStatsDTO(
                 totalVolunteers,

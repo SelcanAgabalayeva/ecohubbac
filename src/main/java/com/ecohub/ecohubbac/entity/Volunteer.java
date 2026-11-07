@@ -87,4 +87,5 @@ public class Volunteer {
 
     @Column(columnDefinition = "TEXT")
     private String extraNotes;
+    private String status = "Yeni";
 }
