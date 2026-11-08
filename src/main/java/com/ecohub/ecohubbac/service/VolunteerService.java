@@ -2,6 +2,9 @@ package com.ecohub.ecohubbac.service;
 
 import com.ecohub.ecohubbac.dto.VolunteerRequestDTO;
 import com.ecohub.ecohubbac.dto.VolunteerResponseDTO;
+import com.ecohub.ecohubbac.entity.Team;
+import org.jspecify.annotations.Nullable;
+
 import java.util.List;
 
 public interface VolunteerService {
@@ -9,7 +12,11 @@ public interface VolunteerService {
     List<VolunteerResponseDTO> getAllVolunteers();
     VolunteerResponseDTO getVolunteerById(Long id);
     void deleteVolunteer(Long id);
+    VolunteerResponseDTO createVolunteer(VolunteerRequestDTO dto);
+    VolunteerResponseDTO updateVolunteer(Long id, VolunteerRequestDTO dto);
 
-    void updateStatus(Long id, String status);
+    Team createTeam(String teamName);
+    List<Team> getAllTeams();
 
+     List<VolunteerResponseDTO> getAllApplications();
 }

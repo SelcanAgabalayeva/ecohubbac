@@ -32,4 +32,11 @@ public class VolunteerRequestDTO {
     private String facebook;
     private String linkedin;
     private String extraNotes;
+    private String status;
+
+    private Long teamId;          // Hansı komandaya aid olduğu
+    private String admissionDate; // Qəbul tarixi
+    private String endDate;       // Fəaliyyətin bitmə tarixi
+    private boolean active;       // Aktivlik
+    private boolean certificateIssued;
 }

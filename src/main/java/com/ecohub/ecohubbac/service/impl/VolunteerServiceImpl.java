@@ -2,7 +2,9 @@ package com.ecohub.ecohubbac.service.impl;
 
 import com.ecohub.ecohubbac.dto.VolunteerRequestDTO;
 import com.ecohub.ecohubbac.dto.VolunteerResponseDTO;
+import com.ecohub.ecohubbac.entity.Team;
 import com.ecohub.ecohubbac.entity.Volunteer;
+import com.ecohub.ecohubbac.repository.TeamRepository;
 import com.ecohub.ecohubbac.repository.VolunteerRepository;
 import com.ecohub.ecohubbac.service.VolunteerService;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +18,7 @@ import java.util.stream.Collectors;
 public class VolunteerServiceImpl implements VolunteerService {
 
     private final VolunteerRepository volunteerRepository;
+    private final TeamRepository teamRepository;
 
     @Override
     public void createVolunteerApplication(VolunteerRequestDTO requestDTO) {
@@ -52,32 +55,160 @@ public class VolunteerServiceImpl implements VolunteerService {
 
     @Override
     public List<VolunteerResponseDTO> getAllVolunteers() {
-        return volunteerRepository.findAll().stream()
-                .map(this::mapToResponseDTO)
+        return volunteerRepository.findByStatus("Qəbul edildi").stream()
+                .map(this::mapToDto)
                 .collect(Collectors.toList());
     }
 
-    @Override
-    public VolunteerResponseDTO getVolunteerById(Long id) {
-        Volunteer volunteer = volunteerRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Könüllü müraciəti tapılmadı: ID " + id));
-        return mapToResponseDTO(volunteer);
+    // Əgər "Könüllü müraciətləri" səhifəsi üçün BÜTÜN müraciətləri (Yeni, Baxılır və s.) çəkmək lazımdırsa, bu əlavə metodu yaradın:
+    public List<VolunteerResponseDTO> getAllApplications() {
+        return volunteerRepository.findAll().stream()
+                .map(this::mapToDto)
+                .collect(Collectors.toList());
     }
 
-    @Override
+    // ID-yə görə tək könüllü
+    public VolunteerResponseDTO getVolunteerById(Long id) {
+        Volunteer volunteer = volunteerRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Könüllü tapılmadı: ID " + id));
+        return mapToDto(volunteer);
+    }
+
+    // Yeni könüllü yarat
+    public VolunteerResponseDTO createVolunteer(VolunteerRequestDTO dto) {
+        Volunteer volunteer = new Volunteer();
+        updateEntityFromDto(volunteer, dto);
+        return mapToDto(volunteerRepository.save(volunteer));
+    }
+
+    // Könüllü məlumatlarını yenilə (Komanda dəyişmək, status dəyişmək, sertifikat vermək və s.)
+    public VolunteerResponseDTO updateVolunteer(Long id, VolunteerRequestDTO dto) {
+        Volunteer volunteer = volunteerRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Könüllü tapılmadı: ID " + id));
+
+        updateEntityFromDto(volunteer, dto);
+        return mapToDto(volunteerRepository.save(volunteer));
+    }
+
+    // Könüllünü sil
     public void deleteVolunteer(Long id) {
         Volunteer volunteer = volunteerRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Könüllü müraciəti tapılmadı: ID " + id));
+                .orElseThrow(() -> new RuntimeException("Könüllü tapılmadı: ID " + id));
         volunteerRepository.delete(volunteer);
     }
 
-    @Override
-    public void updateStatus(Long id, String status) {
-        Volunteer volunteer = volunteerRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Müraciət tapılmadı. ID: " + id));
+    // Komandalar üzrə əməliyyatlar
+    public Team createTeam(String teamName) {
+        Team team = new Team();
+        team.setName(teamName);
+        return teamRepository.save(team);
+    }
 
-        volunteer.setStatus(status);
-        volunteerRepository.save(volunteer);
+    public List<Team> getAllTeams() {
+        return teamRepository.findAll();
+    }
+
+    // Dashboard Statistika kartları üçün
+    public long getActiveVolunteersCount() {
+        return volunteerRepository.findAll().stream().filter(Volunteer::isActive).count();
+    }
+
+    public long getTotalTeamsCount() {
+        return teamRepository.count();
+    }
+
+    public long getCertificatePendingCount() {
+        return volunteerRepository.findAll().stream().filter(v -> !v.isCertificateIssued()).count();
+    }
+
+    // ---------------- HELPER METHODS ----------------
+
+    private void updateEntityFromDto(Volunteer volunteer, VolunteerRequestDTO dto) {
+        volunteer.setFirstName(dto.getFirstName());
+        volunteer.setLastName(dto.getLastName());
+        volunteer.setFatherName(dto.getFatherName());
+        volunteer.setGender(dto.getGender());
+        volunteer.setBirthDate(dto.getBirthDate());
+        volunteer.setEmail(dto.getEmail());
+        volunteer.setPhone(dto.getPhone());
+        volunteer.setAddress(dto.getAddress());
+        volunteer.setCitizenship(dto.getCitizenship());
+        volunteer.setCitizenshipOther(dto.getCitizenshipOther());
+        volunteer.setEducation(dto.getEducation());
+        volunteer.setEducationOther(dto.getEducationOther());
+        volunteer.setInstitution(dto.getInstitution());
+        volunteer.setSpecialty(dto.getSpecialty());
+        volunteer.setLanguages(dto.getLanguages());
+        volunteer.setComputerSkills(dto.getComputerSkills());
+        volunteer.setCanva(dto.getCanva());
+        volunteer.setInterests(dto.getInterests());
+        volunteer.setInterestOther(dto.getInterestOther());
+        volunteer.setExperience(dto.getExperience());
+        volunteer.setExpectations(dto.getExpectations());
+        volunteer.setInstagram(dto.getInstagram());
+        volunteer.setFacebook(dto.getFacebook());
+        volunteer.setLinkedin(dto.getLinkedin());
+        volunteer.setExtraNotes(dto.getExtraNotes());
+
+        if (dto.getStatus() != null) {
+            volunteer.setStatus(dto.getStatus());
+        }
+
+        volunteer.setAdmissionDate(dto.getAdmissionDate());
+        volunteer.setEndDate(dto.getEndDate());
+        volunteer.setActive(dto.isActive());
+        volunteer.setCertificateIssued(dto.isCertificateIssued());
+
+        // Komanda təyinatı
+        if (dto.getTeamId() != null) {
+            Team team = teamRepository.findById(dto.getTeamId())
+                    .orElseThrow(() -> new RuntimeException("Komanda tapılmadı: ID " + dto.getTeamId()));
+            volunteer.setTeam(team);
+        } else {
+            volunteer.setTeam(null);
+        }
+    }
+
+    private VolunteerResponseDTO mapToDto(Volunteer v) {
+        VolunteerResponseDTO dto = new VolunteerResponseDTO();
+        dto.setId(v.getId());
+        dto.setFirstName(v.getFirstName());
+        dto.setLastName(v.getLastName());
+        dto.setFatherName(v.getFatherName());
+        dto.setGender(v.getGender());
+        dto.setBirthDate(v.getBirthDate());
+        dto.setEmail(v.getEmail());
+        dto.setPhone(v.getPhone());
+        dto.setAddress(v.getAddress());
+        dto.setCitizenship(v.getCitizenship());
+        dto.setCitizenshipOther(v.getCitizenshipOther());
+        dto.setEducation(v.getEducation());
+        dto.setEducationOther(v.getEducationOther());
+        dto.setInstitution(v.getInstitution());
+        dto.setSpecialty(v.getSpecialty());
+        dto.setLanguages(v.getLanguages());
+        dto.setComputerSkills(v.getComputerSkills());
+        dto.setCanva(v.getCanva());
+        dto.setInterests(v.getInterests());
+        dto.setInterestOther(v.getInterestOther());
+        dto.setExperience(v.getExperience());
+        dto.setExpectations(v.getExpectations());
+        dto.setInstagram(v.getInstagram());
+        dto.setFacebook(v.getFacebook());
+        dto.setLinkedin(v.getLinkedin());
+        dto.setExtraNotes(v.getExtraNotes());
+        dto.setStatus(v.getStatus());
+        dto.setAdmissionDate(v.getAdmissionDate());
+        dto.setEndDate(v.getEndDate());
+        dto.setActive(v.isActive());
+        dto.setCertificateIssued(v.isCertificateIssued());
+
+        if (v.getTeam() != null) {
+            dto.setTeamId(v.getTeam().getId());
+            dto.setTeamName(v.getTeam().getName());
+        }
+
+        return dto;
     }
 
     private VolunteerResponseDTO mapToResponseDTO(Volunteer v) {

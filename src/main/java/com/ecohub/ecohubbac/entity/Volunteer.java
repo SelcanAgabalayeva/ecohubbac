@@ -88,4 +88,14 @@ public class Volunteer {
     @Column(columnDefinition = "TEXT")
     private String extraNotes;
     private String status = "Yeni";
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "team_id")
+    private Team team;       // Hansı komandaya bağlıdır
+
+    private String admissionDate; // Qəbul tarixi (məs: 2026-11-07)
+    private String endDate;       // Fəaliyyətin bitmə tarixi
+
+    private boolean active = true;          // Aktivlik statusu
+    private boolean certificateIssued = false;
 }
