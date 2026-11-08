@@ -96,6 +96,7 @@ public class Volunteer {
     private String admissionDate; // Qəbul tarixi (məs: 2026-11-07)
     private String endDate;       // Fəaliyyətin bitmə tarixi
 
+
     private boolean active = true;          // Aktivlik statusu
     private boolean certificateIssued = false;
 }

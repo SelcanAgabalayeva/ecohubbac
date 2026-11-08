@@ -1,7 +1,9 @@
 package com.ecohub.ecohubbac.service;
 
+import com.ecohub.ecohubbac.dto.CertificateStatsDTO;
 import com.ecohub.ecohubbac.dto.VolunteerRequestDTO;
 import com.ecohub.ecohubbac.dto.VolunteerResponseDTO;
+import com.ecohub.ecohubbac.dto.VolunteerStatsDTO;
 import com.ecohub.ecohubbac.entity.Team;
 import org.jspecify.annotations.Nullable;
 
@@ -19,4 +21,6 @@ public interface VolunteerService {
     List<Team> getAllTeams();
 
      List<VolunteerResponseDTO> getAllApplications();
+    VolunteerStatsDTO getVolunteerDashboardStats();
+    CertificateStatsDTO getCertificateStats();
 }

@@ -1,7 +1,9 @@
 package com.ecohub.ecohubbac.controller.dashboard;
 
+import com.ecohub.ecohubbac.dto.CertificateStatsDTO;
 import com.ecohub.ecohubbac.dto.VolunteerRequestDTO;
 import com.ecohub.ecohubbac.dto.VolunteerResponseDTO;
+import com.ecohub.ecohubbac.dto.VolunteerStatsDTO;
 import com.ecohub.ecohubbac.entity.Team;
 import com.ecohub.ecohubbac.service.VolunteerService;
 import lombok.RequiredArgsConstructor;
@@ -47,24 +49,37 @@ public class VolunteerAdminController {
         return ResponseEntity.ok(volunteerService.updateVolunteer(id, requestDTO));
     }
 
-    // 5. Könüllünü sil
     @DeleteMapping("/volunteers/{id}")
     public ResponseEntity<String> deleteVolunteer(@PathVariable Long id) {
         volunteerService.deleteVolunteer(id);
         return ResponseEntity.ok("Könüllü uğurla silindi. ID: " + id);
     }
 
-    // 6. Bütün komandaları gətir
+
     @GetMapping("/teams")
     public ResponseEntity<List<Team>> getAllTeams() {
         return ResponseEntity.ok(volunteerService.getAllTeams());
     }
 
-    // 7. Yeni komanda yarat ("+ Yeni komanda yarat" düyməsi üçün)
+
     @PostMapping("/teams")
     public ResponseEntity<Team> createTeam(@RequestBody Map<String, String> request) {
         String teamName = request.get("name");
         return ResponseEntity.ok(volunteerService.createTeam(teamName));
+    }
+
+    @GetMapping("/stats")
+    public ResponseEntity<VolunteerStatsDTO> getDashboardStats() {
+        return ResponseEntity.ok(volunteerService.getVolunteerDashboardStats());
+    }
+    @GetMapping("/certificates")
+    public ResponseEntity<List<VolunteerResponseDTO>> getAllVolunteersForCertificates() {
+        return ResponseEntity.ok(volunteerService.getAllVolunteers());
+    }
+
+    @GetMapping("/certificates/stats")
+    public ResponseEntity<CertificateStatsDTO> getCertificateStats() {
+        return ResponseEntity.ok(volunteerService.getCertificateStats());
     }
 
 }

@@ -1,7 +1,9 @@
 package com.ecohub.ecohubbac.service.impl;
 
+import com.ecohub.ecohubbac.dto.CertificateStatsDTO;
 import com.ecohub.ecohubbac.dto.VolunteerRequestDTO;
 import com.ecohub.ecohubbac.dto.VolunteerResponseDTO;
+import com.ecohub.ecohubbac.dto.VolunteerStatsDTO;
 import com.ecohub.ecohubbac.entity.Team;
 import com.ecohub.ecohubbac.entity.Volunteer;
 import com.ecohub.ecohubbac.repository.TeamRepository;
@@ -223,5 +225,23 @@ public class VolunteerServiceImpl implements VolunteerService {
         dto.setInterests(v.getInterests());
         dto.setBirthDate(v.getBirthDate());
         return dto;
+    }
+
+    // Statistika kartları üçün (Aktiv könüllülər və Ümumi komandalar)
+    public VolunteerStatsDTO getVolunteerDashboardStats() {
+        // Yalnız statusu "Qəbul edildi" və aktiv olan könüllüləri sayır
+        long activeCount = volunteerRepository.countByStatusAndActiveTrue("Qəbul edildi");
+
+        // Ümumi yaratdığınız komandaların sayını alır
+        long teamsCount = teamRepository.count();
+
+        return new VolunteerStatsDTO(activeCount, teamsCount);
+    }
+
+    // Sertifikat statistikası (Gözləyən və Verilən)
+    public CertificateStatsDTO getCertificateStats() {
+        long pending = volunteerRepository.countByCertificateIssuedFalse();
+        long issued = volunteerRepository.countByCertificateIssuedTrue();
+        return new CertificateStatsDTO(pending, issued);
     }
 }
