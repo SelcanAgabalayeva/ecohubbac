@@ -1,10 +1,13 @@
 package com.ecohub.ecohubbac.controller.dashboard;
 
 import com.ecohub.ecohubbac.dto.DashboardStatsDTO;
+import com.ecohub.ecohubbac.dto.VolunteerResponseDTO;
 import com.ecohub.ecohubbac.service.DashboardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/admin/dashboard")
@@ -18,6 +21,11 @@ public class DashboardController {
     public ResponseEntity<DashboardStatsDTO> getDashboardStats() {
 
         return ResponseEntity.ok(dashboardService.getDashboardStats());
+    }
+
+    @GetMapping("/latest-applications")
+    public ResponseEntity<List<VolunteerResponseDTO>> getLatestApplications() {
+        return ResponseEntity.ok(dashboardService.getLatestVolunteerApplications());
     }
 
 }

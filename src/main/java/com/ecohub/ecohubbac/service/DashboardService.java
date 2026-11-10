@@ -1,9 +1,14 @@
 package com.ecohub.ecohubbac.service;
 import com.ecohub.ecohubbac.dto.DashboardStatsDTO;
+import com.ecohub.ecohubbac.dto.VolunteerResponseDTO;
+import com.ecohub.ecohubbac.entity.Volunteer;
 import com.ecohub.ecohubbac.repository.ProjectRepository;
 import com.ecohub.ecohubbac.repository.VolunteerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -25,5 +30,25 @@ public class DashboardService {
                 acceptedVolunteers,
                 totalProjects
         );
+    }
+
+    public List<VolunteerResponseDTO> getLatestVolunteerApplications() {
+        List<Volunteer> latestVolunteers = volunteerRepository.findTop5ByOrderByIdDesc();
+
+        return latestVolunteers.stream()
+                .map(this::mapToDto)
+                .collect(Collectors.toList());
+    }
+
+    private VolunteerResponseDTO mapToDto(Volunteer v) {
+        VolunteerResponseDTO dto = new VolunteerResponseDTO();
+        dto.setId(v.getId());
+        dto.setFirstName(v.getFirstName());
+        dto.setLastName(v.getLastName());
+        dto.setEmail(v.getEmail());
+        dto.setPhone(v.getPhone());
+        dto.setStatus(v.getStatus());
+        dto.setCreatedAt(v.getCreatedAt());
+        return dto;
     }
 }

@@ -23,4 +23,6 @@ public interface VolunteerService {
      List<VolunteerResponseDTO> getAllApplications();
     VolunteerStatsDTO getVolunteerDashboardStats();
     CertificateStatsDTO getCertificateStats();
+    List<VolunteerResponseDTO> getFilteredApplications(String search, String status);
+
 }

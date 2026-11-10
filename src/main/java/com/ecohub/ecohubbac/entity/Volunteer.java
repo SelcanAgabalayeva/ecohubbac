@@ -38,6 +38,7 @@ public class Volunteer {
 
     @Column(nullable = false)
     private String phone;
+    private LocalDate createdAt; // Və ya qeydiyyat tarixi hansı adla qeyd olunubsa
 
     @Column(nullable = false, columnDefinition = "TEXT")
     private String address;

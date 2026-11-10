@@ -20,24 +20,25 @@ public class VolunteerAdminController {
 
     private final VolunteerService volunteerService;
 
-    // 1. Əsas "Könüllülər" səhifəsi üçün (Yalnız "Qəbul edildi" olanlar gəlir)
+
     @GetMapping("/volunteers")
     public ResponseEntity<List<VolunteerResponseDTO>> getAllVolunteers() {
         return ResponseEntity.ok(volunteerService.getAllVolunteers());
     }
 
-    // 2. "Könüllü müraciətləri" səhifəsi üçün (Bütün statusdakılar - Yeni, Baxılır, Rədd və s. gəlir)
     @GetMapping("/applications")
-    public ResponseEntity<List<VolunteerResponseDTO>> getAllApplications() {
-        return ResponseEntity.ok(volunteerService.getAllApplications());
+    public ResponseEntity<List<VolunteerResponseDTO>> getApplications(
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String status) {
+        return ResponseEntity.ok(volunteerService.getFilteredApplications(search, status));
     }
-    // 2. ID-yə görə könüllü
+
     @GetMapping("/volunteers/{id}")
     public ResponseEntity<VolunteerResponseDTO> getVolunteerById(@PathVariable Long id) {
         return ResponseEntity.ok(volunteerService.getVolunteerById(id));
     }
 
-    // 3. Yeni könüllü əlavə et
+
     @PostMapping("/volunteers")
     public ResponseEntity<VolunteerResponseDTO> createVolunteer(@RequestBody VolunteerRequestDTO requestDTO) {
         return ResponseEntity.ok(volunteerService.createVolunteer(requestDTO));
@@ -72,7 +73,7 @@ public class VolunteerAdminController {
     public ResponseEntity<VolunteerStatsDTO> getDashboardStats() {
         return ResponseEntity.ok(volunteerService.getVolunteerDashboardStats());
     }
-    @GetMapping("/certificates")
+    @GetMapping("/certificates/list")
     public ResponseEntity<List<VolunteerResponseDTO>> getAllVolunteersForCertificates() {
         return ResponseEntity.ok(volunteerService.getAllVolunteers());
     }

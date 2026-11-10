@@ -244,4 +244,26 @@ public class VolunteerServiceImpl implements VolunteerService {
         long issued = volunteerRepository.countByCertificateIssuedTrue();
         return new CertificateStatsDTO(pending, issued);
     }
+
+    @Override
+    public List<VolunteerResponseDTO> getFilteredApplications(String search, String status) {
+        List<Volunteer> volunteers = volunteerRepository.findAll();
+
+        if (status != null && !status.isBlank() && !status.equalsIgnoreCase("Hamısı")) {
+            volunteers = volunteers.stream()
+                    .filter(v -> v.getStatus() != null && v.getStatus().equalsIgnoreCase(status))
+                    .collect(Collectors.toList());
+        }
+
+        if (search != null && !search.isBlank()) {
+            String query = search.toLowerCase();
+            volunteers = volunteers.stream()
+                    .filter(v -> (v.getFirstName() != null && v.getFirstName().toLowerCase().contains(query)) ||
+                            (v.getLastName() != null && v.getLastName().toLowerCase().contains(query)) ||
+                            (v.getEmail() != null && v.getEmail().toLowerCase().contains(query)))
+                    .collect(Collectors.toList());
+        }
+
+        return volunteers.stream().map(this::mapToDto).collect(Collectors.toList());
+    }
 }

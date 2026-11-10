@@ -33,6 +33,7 @@ public class VolunteerResponseDTO {
     private String linkedin;
     private String extraNotes;
     private String status;
+    private LocalDate createdAt; // Və ya qeydiyyat tarixi hansı adla qeyd olunubsa
 
     private Long teamId;          // Hansı komandaya aid olduğu
     private String teamName;      // Komandanın adı
