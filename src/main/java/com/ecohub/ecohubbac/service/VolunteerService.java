@@ -25,4 +25,5 @@ public interface VolunteerService {
     CertificateStatsDTO getCertificateStats();
     List<VolunteerResponseDTO> getFilteredApplications(String search, String status);
 
+     VolunteerResponseDTO issueCertificate(Long id);
 }

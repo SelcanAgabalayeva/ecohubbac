@@ -266,4 +266,15 @@ public class VolunteerServiceImpl implements VolunteerService {
 
         return volunteers.stream().map(this::mapToDto).collect(Collectors.toList());
     }
+
+    @Override
+    public VolunteerResponseDTO issueCertificate(Long id) {
+        Volunteer volunteer = volunteerRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Könüllü tapılmadı: " + id));
+
+        volunteer.setCertificateIssued(true);
+        Volunteer saved = volunteerRepository.save(volunteer);
+
+        return mapToDto(saved);
+    }
 }

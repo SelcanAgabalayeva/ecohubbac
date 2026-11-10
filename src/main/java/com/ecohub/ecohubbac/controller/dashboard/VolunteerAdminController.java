@@ -82,5 +82,9 @@ public class VolunteerAdminController {
     public ResponseEntity<CertificateStatsDTO> getCertificateStats() {
         return ResponseEntity.ok(volunteerService.getCertificateStats());
     }
+    @PutMapping("/volunteers/{id}/issue-certificate")
+    public ResponseEntity<VolunteerResponseDTO> issueCertificate(@PathVariable Long id) {
+        return ResponseEntity.ok(volunteerService.issueCertificate(id));
+    }
 
 }
