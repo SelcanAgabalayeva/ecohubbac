@@ -87,4 +87,20 @@ public class VolunteerAdminController {
         return ResponseEntity.ok(volunteerService.issueCertificate(id));
     }
 
+    // 🟢 1. Komanda dəyişmək (Şəkildəki "Team 5" seçimi üçündür) -> PUT: /api/admin/volunteers/{id}/team
+    @PutMapping("/{id}/team")
+    public ResponseEntity<VolunteerResponseDTO> assignVolunteerToTeam(
+            @PathVariable Long id,
+            @RequestParam Long teamId) {
+        return ResponseEntity.ok(volunteerService.assignVolunteerToTeam(id, teamId));
+    }
+
+    // 🟢 2. Fəaliyyəti bitirmək / Aktivliyi dəyişmək (Şəkildəki checkbox üçündür) -> PATCH: /api/admin/volunteers/{id}/activity
+    @PatchMapping("/{id}/activity")
+    public ResponseEntity<VolunteerResponseDTO> updateVolunteerActivity(
+            @PathVariable Long id,
+            @RequestParam boolean active) {
+        return ResponseEntity.ok(volunteerService.updateVolunteerActivity(id, active));
+    }
+
 }

@@ -277,4 +277,22 @@ public class VolunteerServiceImpl implements VolunteerService {
 
         return mapToDto(saved);
     }
+    @Override
+    public VolunteerResponseDTO assignVolunteerToTeam(Long volunteerId, Long teamId) {
+        Volunteer volunteer = volunteerRepository.findById(volunteerId)
+                .orElseThrow(() -> new RuntimeException("Könüllü tapılmadı"));
+        Team team = teamRepository.findById(teamId)
+                .orElseThrow(() -> new RuntimeException("Komanda tapılmadı"));
+
+        volunteer.setTeam(team);
+        return mapToDto(volunteerRepository.save(volunteer));
+    }
+    @Override
+    public VolunteerResponseDTO updateVolunteerActivity(Long volunteerId, boolean active) {
+        Volunteer volunteer = volunteerRepository.findById(volunteerId)
+                .orElseThrow(() -> new RuntimeException("Könüllü tapılmadı"));
+
+        volunteer.setActive(active);
+        return mapToDto(volunteerRepository.save(volunteer));
+    }
 }

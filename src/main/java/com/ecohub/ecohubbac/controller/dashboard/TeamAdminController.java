@@ -34,6 +34,13 @@ public class TeamAdminController {
         return ResponseEntity.ok(teamService.createTeam(requestDTO));
     }
 
+
+    @PutMapping("/{teamId}/leader/{volunteerId}")
+    public ResponseEntity<TeamResponseDTO> updateTeamLeader(
+            @PathVariable Long teamId,
+            @PathVariable Long volunteerId) {
+        return ResponseEntity.ok(teamService.updateTeamLeader(teamId, volunteerId));
+    }
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteTeam(@PathVariable Long id) {
         teamService.deleteTeam(id);

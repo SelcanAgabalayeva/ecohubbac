@@ -21,4 +21,7 @@ public class Team {
 
     @OneToMany(mappedBy = "team")
     private List<Volunteer> volunteers;
+    @ManyToOne
+    @JoinColumn(name = "leader_id")
+    private Volunteer leader;
 }

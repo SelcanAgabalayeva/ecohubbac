@@ -26,4 +26,8 @@ public interface VolunteerService {
     List<VolunteerResponseDTO> getFilteredApplications(String search, String status);
 
      VolunteerResponseDTO issueCertificate(Long id);
+
+     VolunteerResponseDTO assignVolunteerToTeam(Long id, Long teamId);
+
+     VolunteerResponseDTO updateVolunteerActivity(Long id, boolean active);
 }
