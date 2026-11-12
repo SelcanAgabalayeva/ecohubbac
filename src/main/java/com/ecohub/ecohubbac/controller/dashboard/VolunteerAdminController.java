@@ -15,17 +15,19 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/admin/volunteers")
+@CrossOrigin(origins = "*")
 @RequiredArgsConstructor
 public class VolunteerAdminController {
 
     private final VolunteerService volunteerService;
 
-
-    @GetMapping("/volunteers")
+    // GET: /api/admin/volunteers
+    @GetMapping
     public ResponseEntity<List<VolunteerResponseDTO>> getAllVolunteers() {
         return ResponseEntity.ok(volunteerService.getAllVolunteers());
     }
 
+    // GET: /api/admin/volunteers/applications
     @GetMapping("/applications")
     public ResponseEntity<List<VolunteerResponseDTO>> getApplications(
             @RequestParam(required = false) String search,
@@ -33,61 +35,34 @@ public class VolunteerAdminController {
         return ResponseEntity.ok(volunteerService.getFilteredApplications(search, status));
     }
 
-    @GetMapping("/volunteers/{id}")
+    // GET: /api/admin/volunteers/{id}
+    @GetMapping("/{id}")
     public ResponseEntity<VolunteerResponseDTO> getVolunteerById(@PathVariable Long id) {
         return ResponseEntity.ok(volunteerService.getVolunteerById(id));
     }
 
-
-    @PostMapping("/volunteers")
+    // 🟢 DÜZƏLDİldİ: POST: /api/admin/volunteers (Artıq sonundakı /volunteers silindi)
+    @PostMapping
     public ResponseEntity<VolunteerResponseDTO> createVolunteer(@RequestBody VolunteerRequestDTO requestDTO) {
         return ResponseEntity.ok(volunteerService.createVolunteer(requestDTO));
     }
-    @PutMapping("/volunteers/{id}")
+
+    // PUT: /api/admin/volunteers/{id}
+    @PutMapping("/{id}")
     public ResponseEntity<VolunteerResponseDTO> updateVolunteer(
             @PathVariable Long id,
             @RequestBody VolunteerRequestDTO requestDTO) {
         return ResponseEntity.ok(volunteerService.updateVolunteer(id, requestDTO));
     }
 
-    @DeleteMapping("/volunteers/{id}")
+    // DELETE: /api/admin/volunteers/{id}
+    @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteVolunteer(@PathVariable Long id) {
         volunteerService.deleteVolunteer(id);
         return ResponseEntity.ok("Könüllü uğurla silindi. ID: " + id);
     }
 
-
-    @GetMapping("/teams")
-    public ResponseEntity<List<Team>> getAllTeams() {
-        return ResponseEntity.ok(volunteerService.getAllTeams());
-    }
-
-
-    @PostMapping("/teams")
-    public ResponseEntity<Team> createTeam(@RequestBody Map<String, String> request) {
-        String teamName = request.get("name");
-        return ResponseEntity.ok(volunteerService.createTeam(teamName));
-    }
-
-    @GetMapping("/stats")
-    public ResponseEntity<VolunteerStatsDTO> getDashboardStats() {
-        return ResponseEntity.ok(volunteerService.getVolunteerDashboardStats());
-    }
-    @GetMapping("/certificates/list")
-    public ResponseEntity<List<VolunteerResponseDTO>> getAllVolunteersForCertificates() {
-        return ResponseEntity.ok(volunteerService.getAllVolunteers());
-    }
-
-    @GetMapping("/certificates/stats")
-    public ResponseEntity<CertificateStatsDTO> getCertificateStats() {
-        return ResponseEntity.ok(volunteerService.getCertificateStats());
-    }
-    @PutMapping("/volunteers/{id}/issue-certificate")
-    public ResponseEntity<VolunteerResponseDTO> issueCertificate(@PathVariable Long id) {
-        return ResponseEntity.ok(volunteerService.issueCertificate(id));
-    }
-
-    // 🟢 1. Komanda dəyişmək (Şəkildəki "Team 5" seçimi üçündür) -> PUT: /api/admin/volunteers/{id}/team
+    // Komanda dəyişmək -> PUT: /api/admin/volunteers/{id}/team
     @PutMapping("/{id}/team")
     public ResponseEntity<VolunteerResponseDTO> assignVolunteerToTeam(
             @PathVariable Long id,
@@ -95,7 +70,7 @@ public class VolunteerAdminController {
         return ResponseEntity.ok(volunteerService.assignVolunteerToTeam(id, teamId));
     }
 
-    // 🟢 2. Fəaliyyəti bitirmək / Aktivliyi dəyişmək (Şəkildəki checkbox üçündür) -> PATCH: /api/admin/volunteers/{id}/activity
+    // Fəaliyyəti bitirmək / Aktivliyi dəyişmək -> PATCH: /api/admin/volunteers/{id}/activity
     @PatchMapping("/{id}/activity")
     public ResponseEntity<VolunteerResponseDTO> updateVolunteerActivity(
             @PathVariable Long id,
@@ -103,4 +78,40 @@ public class VolunteerAdminController {
         return ResponseEntity.ok(volunteerService.updateVolunteerActivity(id, active));
     }
 
+    // GET: /api/admin/volunteers/teams
+    @GetMapping("/teams")
+    public ResponseEntity<List<Team>> getAllTeams() {
+        return ResponseEntity.ok(volunteerService.getAllTeams());
+    }
+
+    // POST: /api/admin/volunteers/teams
+    @PostMapping("/teams")
+    public ResponseEntity<Team> createTeam(@RequestBody Map<String, String> request) {
+        String teamName = request.get("name");
+        return ResponseEntity.ok(volunteerService.createTeam(teamName));
+    }
+
+    // GET: /api/admin/volunteers/stats
+    @GetMapping("/stats")
+    public ResponseEntity<VolunteerStatsDTO> getDashboardStats() {
+        return ResponseEntity.ok(volunteerService.getVolunteerDashboardStats());
+    }
+
+    // GET: /api/admin/volunteers/certificates/list
+    @GetMapping("/certificates/list")
+    public ResponseEntity<List<VolunteerResponseDTO>> getAllVolunteersForCertificates() {
+        return ResponseEntity.ok(volunteerService.getAllVolunteers());
+    }
+
+    // GET: /api/admin/volunteers/certificates/stats
+    @GetMapping("/certificates/stats")
+    public ResponseEntity<CertificateStatsDTO> getCertificateStats() {
+        return ResponseEntity.ok(volunteerService.getCertificateStats());
+    }
+
+    // PUT: /api/admin/volunteers/{id}/issue-certificate
+    @PutMapping("/{id}/issue-certificate")
+    public ResponseEntity<VolunteerResponseDTO> issueCertificate(@PathVariable Long id) {
+        return ResponseEntity.ok(volunteerService.issueCertificate(id));
+    }
 }
