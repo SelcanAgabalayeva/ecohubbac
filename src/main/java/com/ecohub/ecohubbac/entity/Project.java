@@ -13,7 +13,8 @@ import java.util.List;
 @AllArgsConstructor
 public class Project {
     @Id
-    private String id; // "01", "02"
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @Column(nullable = false)
     private String title;

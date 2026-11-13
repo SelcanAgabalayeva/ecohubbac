@@ -43,7 +43,7 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public ProjectDetailResponseDTO getProjectById(String id) {
+    public ProjectDetailResponseDTO getProjectById(Long id) { // String -> Long
         Project project = projectRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Layihə tapılmadı: " + id));
 
@@ -77,7 +77,7 @@ public class ProjectServiceImpl implements ProjectService {
 
         // Əgər şəkil yüklənibsə:
         if (file != null && !file.isEmpty()) {
-            String imageUrl = fileService.uploadFile(file); // Fayl yükləmə servisiniz
+            String imageUrl = fileService.uploadFile(file);
             project.setImageUrl(imageUrl);
         }
 
@@ -85,7 +85,8 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public Project updateProject(String id, Project projectDetails, MultipartFile file) {
+    public Project updateProject(Long id, Project projectDetails, MultipartFile file) {
+        // 🟢 String.valueOf(id) silindi, birbaşa id ötürüldü
         Project existingProject = projectRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Layihə tapılmadı: " + id));
 
@@ -95,12 +96,11 @@ public class ProjectServiceImpl implements ProjectService {
         existingProject.setMission(projectDetails.getMission());
         existingProject.setActivities(projectDetails.getActivities());
 
-        // Əgər istifadəçi yeni şəkil yükləyibsə, Cloudinary-ə yükləyib linki yeniləyirik:
+        // Əgər istifadəçi yeni şəkil yükləyibsə:
         if (file != null && !file.isEmpty()) {
             String imageUrl = fileService.uploadFile(file);
             existingProject.setImageUrl(imageUrl);
         } else if (projectDetails.getImageUrl() != null) {
-            // Əgər fayl göndərilməyibsə amma JSON-da imageUrl gəlibsə onu da saxlaya bilərik
             existingProject.setImageUrl(projectDetails.getImageUrl());
         }
 
@@ -114,7 +114,7 @@ public class ProjectServiceImpl implements ProjectService {
         return projectRepository.save(existingProject);
     }
     @Override
-    public void deleteProject(String id) {
+    public void deleteProject(Long id) { // String -> Long
         Project project = projectRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Layihə tapılmadı: " + id));
         projectRepository.delete(project);
@@ -126,7 +126,8 @@ public class ProjectServiceImpl implements ProjectService {
         List<ProjectResponseDTO> dtoList = new ArrayList<>();
         for (Project project : projects) {
             ProjectResponseDTO dto = new ProjectResponseDTO();
-            dto.setNumber(project.getId());
+            // Əgər ProjectResponseDTO-da setter `setId` adlanırsa, onu işlədin:
+            dto.setId(project.getId());
 
             dto.setTitle(project.getTitle());
             dto.setDescription(project.getDescription());

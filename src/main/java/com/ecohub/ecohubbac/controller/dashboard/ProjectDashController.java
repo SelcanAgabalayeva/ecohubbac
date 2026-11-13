@@ -25,7 +25,7 @@ public class ProjectDashController {
         return ResponseEntity.ok(projectService.getProjectsByCategory(category));
     }
     @GetMapping("/{id}")
-    public ResponseEntity<ProjectDetailResponseDTO> getProjectById(@PathVariable String id) {
+    public ResponseEntity<ProjectDetailResponseDTO> getProjectById(@PathVariable Long id) {
         return ResponseEntity.ok(projectService.getProjectById(id));
     }
 
@@ -50,7 +50,7 @@ public class ProjectDashController {
     }
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Project> updateProject(
-            @PathVariable String id,
+            @PathVariable Long id,
             @RequestPart("project") String projectJson,
             @RequestPart(value = "file", required = false) MultipartFile file) {
 
@@ -68,7 +68,7 @@ public class ProjectDashController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteProject(@PathVariable String id) {
+    public ResponseEntity<String> deleteProject(@PathVariable Long id) {
         projectService.deleteProject(id);
         return ResponseEntity.ok("Layihə uğurla silindi. ID: " + id);
     }

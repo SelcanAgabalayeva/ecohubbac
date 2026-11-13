@@ -9,7 +9,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProjectDetailResponseDTO {
-    private String number;
+    private Long id;
     private String category;
     private String title;
     private String subtitle;
