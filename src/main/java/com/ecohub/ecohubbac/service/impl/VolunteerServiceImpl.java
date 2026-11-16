@@ -22,9 +22,11 @@ public class VolunteerServiceImpl implements VolunteerService {
     private final VolunteerRepository volunteerRepository;
     private final TeamRepository teamRepository;
 
+    // Public formdan yeni müraciət
     @Override
     public void createVolunteerApplication(VolunteerRequestDTO requestDTO) {
         Volunteer volunteer = new Volunteer();
+
         volunteer.setFirstName(requestDTO.getFirstName());
         volunteer.setLastName(requestDTO.getLastName());
         volunteer.setFatherName(requestDTO.getFatherName());
@@ -52,79 +54,147 @@ public class VolunteerServiceImpl implements VolunteerService {
         volunteer.setLinkedin(requestDTO.getLinkedin());
         volunteer.setExtraNotes(requestDTO.getExtraNotes());
 
+        volunteer.setStatus("Yeni");
+        volunteer.setActive(false);
+
         volunteerRepository.save(volunteer);
     }
 
+    // Yalnız qəbul edilmiş könüllülər
     @Override
     public List<VolunteerResponseDTO> getAllVolunteers() {
-        return volunteerRepository.findByStatus("Qəbul edildi").stream()
+        return volunteerRepository.findByStatus("Qəbul edildi")
+                .stream()
                 .map(this::mapToDto)
                 .collect(Collectors.toList());
     }
 
-    // Əgər "Könüllü müraciətləri" səhifəsi üçün BÜTÜN müraciətləri (Yeni, Baxılır və s.) çəkmək lazımdırsa, bu əlavə metodu yaradın:
+    // Bütün müraciətlər
+    @Override
     public List<VolunteerResponseDTO> getAllApplications() {
-        return volunteerRepository.findAll().stream()
+        return volunteerRepository.findAll()
+                .stream()
                 .map(this::mapToDto)
                 .collect(Collectors.toList());
     }
 
-    // ID-yə görə tək könüllü
+    // ID-yə görə könüllü
+    @Override
     public VolunteerResponseDTO getVolunteerById(Long id) {
         Volunteer volunteer = volunteerRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Könüllü tapılmadı: ID " + id));
+                .orElseThrow(() ->
+                        new RuntimeException("Könüllü tapılmadı: ID " + id));
+
         return mapToDto(volunteer);
     }
 
-    // Yeni könüllü yarat
+    // Admin panelindən yeni könüllü yarat
+    @Override
     public VolunteerResponseDTO createVolunteer(VolunteerRequestDTO dto) {
         Volunteer volunteer = new Volunteer();
+
         updateEntityFromDto(volunteer, dto);
+
         return mapToDto(volunteerRepository.save(volunteer));
     }
 
-    // Könüllü məlumatlarını yenilə (Komanda dəyişmək, status dəyişmək, sertifikat vermək və s.)
+    // Könüllü məlumatlarını yenilə
+    @Override
     public VolunteerResponseDTO updateVolunteer(Long id, VolunteerRequestDTO dto) {
         Volunteer volunteer = volunteerRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Könüllü tapılmadı: ID " + id));
+                .orElseThrow(() ->
+                        new RuntimeException("Könüllü tapılmadı: ID " + id));
 
         updateEntityFromDto(volunteer, dto);
+
         return mapToDto(volunteerRepository.save(volunteer));
     }
 
     // Könüllünü sil
+    @Override
     public void deleteVolunteer(Long id) {
         Volunteer volunteer = volunteerRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Könüllü tapılmadı: ID " + id));
+                .orElseThrow(() ->
+                        new RuntimeException("Könüllü tapılmadı: ID " + id));
+
         volunteerRepository.delete(volunteer);
     }
 
-    // Komandalar üzrə əməliyyatlar
+    // Komanda yarat
+    @Override
     public Team createTeam(String teamName) {
+        if (teamName == null || teamName.isBlank()) {
+            throw new IllegalArgumentException("Komanda adı boş ola bilməz.");
+        }
+
         Team team = new Team();
-        team.setName(teamName);
+        team.setName(teamName.trim());
+
         return teamRepository.save(team);
     }
 
+    // Bütün komandalar
+    @Override
     public List<Team> getAllTeams() {
         return teamRepository.findAll();
     }
 
-    // Dashboard Statistika kartları üçün
+    // Aktiv könüllülərin sayı
     public long getActiveVolunteersCount() {
-        return volunteerRepository.findAll().stream().filter(Volunteer::isActive).count();
+        return volunteerRepository.findAll()
+                .stream()
+                .filter(Volunteer::isActive)
+                .count();
     }
 
+    // Komandaların sayı
     public long getTotalTeamsCount() {
         return teamRepository.count();
     }
 
+    // Sertifikat gözləyənlərin sayı
     public long getCertificatePendingCount() {
-        return volunteerRepository.findAll().stream().filter(v -> !v.isCertificateIssued()).count();
+        return volunteerRepository.findAll()
+                .stream()
+                .filter(v -> !v.isCertificateIssued())
+                .count();
     }
 
-    // ---------------- HELPER METHODS ----------------
+    // Könüllü statusunu dəyiş
+    @Override
+    public VolunteerResponseDTO updateVolunteerStatus(Long id, String status) {
+        Volunteer volunteer = volunteerRepository.findById(id)
+                .orElseThrow(() ->
+                        new RuntimeException("Müraciət tapılmadı: ID " + id));
 
+        if (status == null || status.isBlank()) {
+            throw new IllegalArgumentException("Status boş ola bilməz.");
+        }
+
+        List<String> allowedStatuses = List.of(
+                "Yeni",
+                "Baxılır",
+                "Qəbul edildi",
+                "Rədd edildi"
+        );
+
+        if (!allowedStatuses.contains(status)) {
+            throw new IllegalArgumentException("Yanlış status seçilib.");
+        }
+
+        volunteer.setStatus(status);
+
+        // Yalnız qəbul ediləndə aktiv könüllü olur
+        if ("Qəbul edildi".equals(status)) {
+            volunteer.setActive(true);
+        } else {
+            volunteer.setActive(false);
+        }
+
+        return mapToDto(volunteerRepository.save(volunteer));
+    }
+
+    // DTO-dan entity-yə məlumat köçür
     private void updateEntityFromDto(Volunteer volunteer, VolunteerRequestDTO dto) {
         volunteer.setFirstName(dto.getFirstName());
         volunteer.setLastName(dto.getLastName());
@@ -164,15 +234,19 @@ public class VolunteerServiceImpl implements VolunteerService {
         // Komanda təyinatı
         if (dto.getTeamId() != null) {
             Team team = teamRepository.findById(dto.getTeamId())
-                    .orElseThrow(() -> new RuntimeException("Komanda tapılmadı: ID " + dto.getTeamId()));
+                    .orElseThrow(() ->
+                            new RuntimeException("Komanda tapılmadı: ID " + dto.getTeamId()));
+
             volunteer.setTeam(team);
         } else {
             volunteer.setTeam(null);
         }
     }
 
+    // Entity-dən Response DTO-ya məlumat köçür
     private VolunteerResponseDTO mapToDto(Volunteer v) {
         VolunteerResponseDTO dto = new VolunteerResponseDTO();
+
         dto.setId(v.getId());
         dto.setFirstName(v.getFirstName());
         dto.setLastName(v.getLastName());
@@ -213,86 +287,114 @@ public class VolunteerServiceImpl implements VolunteerService {
         return dto;
     }
 
-    private VolunteerResponseDTO mapToResponseDTO(Volunteer v) {
-        VolunteerResponseDTO dto = new VolunteerResponseDTO();
-        dto.setId(v.getId());
-        dto.setFirstName(v.getFirstName());
-        dto.setLastName(v.getLastName());
-        dto.setEmail(v.getEmail());
-        dto.setPhone(v.getPhone());
-        dto.setInstitution(v.getInstitution());
-        dto.setSpecialty(v.getSpecialty());
-        dto.setInterests(v.getInterests());
-        dto.setBirthDate(v.getBirthDate());
-        return dto;
-    }
-
-    // Statistika kartları üçün (Aktiv könüllülər və Ümumi komandalar)
+    // Dashboard statistikası
+    @Override
     public VolunteerStatsDTO getVolunteerDashboardStats() {
-        // Yalnız statusu "Qəbul edildi" və aktiv olan könüllüləri sayır
-        long activeCount = volunteerRepository.countByStatusAndActiveTrue("Qəbul edildi");
+        long activeCount =
+                volunteerRepository.countByStatusAndActiveTrue("Qəbul edildi");
 
-        // Ümumi yaratdığınız komandaların sayını alır
         long teamsCount = teamRepository.count();
 
         return new VolunteerStatsDTO(activeCount, teamsCount);
     }
 
-    // Sertifikat statistikası (Gözləyən və Verilən)
+    // Sertifikat statistikası
+    @Override
     public CertificateStatsDTO getCertificateStats() {
-        long pending = volunteerRepository.countByCertificateIssuedFalse();
-        long issued = volunteerRepository.countByCertificateIssuedTrue();
+        long pending =
+                volunteerRepository.countByCertificateIssuedFalse();
+
+        long issued =
+                volunteerRepository.countByCertificateIssuedTrue();
+
         return new CertificateStatsDTO(pending, issued);
     }
 
+    // Müraciətləri axtarış və statusa görə filtrlə
     @Override
-    public List<VolunteerResponseDTO> getFilteredApplications(String search, String status) {
+    public List<VolunteerResponseDTO> getFilteredApplications(
+            String search,
+            String status) {
+
         List<Volunteer> volunteers = volunteerRepository.findAll();
 
-        if (status != null && !status.isBlank() && !status.equalsIgnoreCase("Hamısı")) {
+        if (status != null
+                && !status.isBlank()
+                && !status.equalsIgnoreCase("Hamısı")) {
+
             volunteers = volunteers.stream()
-                    .filter(v -> v.getStatus() != null && v.getStatus().equalsIgnoreCase(status))
+                    .filter(v -> v.getStatus() != null
+                            && v.getStatus().equalsIgnoreCase(status))
                     .collect(Collectors.toList());
         }
 
         if (search != null && !search.isBlank()) {
             String query = search.toLowerCase();
+
             volunteers = volunteers.stream()
-                    .filter(v -> (v.getFirstName() != null && v.getFirstName().toLowerCase().contains(query)) ||
-                            (v.getLastName() != null && v.getLastName().toLowerCase().contains(query)) ||
-                            (v.getEmail() != null && v.getEmail().toLowerCase().contains(query)))
+                    .filter(v ->
+                            (v.getFirstName() != null
+                                    && v.getFirstName().toLowerCase().contains(query))
+                                    ||
+                                    (v.getLastName() != null
+                                            && v.getLastName().toLowerCase().contains(query))
+                                    ||
+                                    (v.getEmail() != null
+                                            && v.getEmail().toLowerCase().contains(query))
+                    )
                     .collect(Collectors.toList());
         }
 
-        return volunteers.stream().map(this::mapToDto).collect(Collectors.toList());
+        return volunteers.stream()
+                .map(this::mapToDto)
+                .collect(Collectors.toList());
     }
 
+    // Sertifikat ver
     @Override
     public VolunteerResponseDTO issueCertificate(Long id) {
         Volunteer volunteer = volunteerRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Könüllü tapılmadı: " + id));
+                .orElseThrow(() ->
+                        new RuntimeException("Könüllü tapılmadı: " + id));
 
         volunteer.setCertificateIssued(true);
+
         Volunteer saved = volunteerRepository.save(volunteer);
 
         return mapToDto(saved);
     }
+
+    // Könüllünü komandaya təyin et
     @Override
-    public VolunteerResponseDTO assignVolunteerToTeam(Long volunteerId, Long teamId) {
+    public VolunteerResponseDTO assignVolunteerToTeam(
+            Long volunteerId,
+            Long teamId) {
+
         Volunteer volunteer = volunteerRepository.findById(volunteerId)
-                .orElseThrow(() -> new RuntimeException("Könüllü tapılmadı"));
+                .orElseThrow(() ->
+                        new RuntimeException("Könüllü tapılmadı"));
+
         Team team = teamRepository.findById(teamId)
-                .orElseThrow(() -> new RuntimeException("Komanda tapılmadı"));
+                .orElseThrow(() ->
+                        new RuntimeException("Komanda tapılmadı"));
 
         volunteer.setTeam(team);
+
         return mapToDto(volunteerRepository.save(volunteer));
     }
+
+    // Könüllünün aktivliyini dəyiş
     @Override
-    public VolunteerResponseDTO updateVolunteerActivity(Long volunteerId, boolean active) {
+    public VolunteerResponseDTO updateVolunteerActivity(
+            Long volunteerId,
+            boolean active) {
+
         Volunteer volunteer = volunteerRepository.findById(volunteerId)
-                .orElseThrow(() -> new RuntimeException("Könüllü tapılmadı"));
+                .orElseThrow(() ->
+                        new RuntimeException("Könüllü tapılmadı"));
 
         volunteer.setActive(active);
+
         return mapToDto(volunteerRepository.save(volunteer));
     }
 }

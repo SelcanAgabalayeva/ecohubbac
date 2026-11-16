@@ -21,97 +21,145 @@ public class VolunteerAdminController {
 
     private final VolunteerService volunteerService;
 
-    // GET: /api/admin/volunteers
+    // Bütün qəbul edilmiş könüllülər
     @GetMapping
     public ResponseEntity<List<VolunteerResponseDTO>> getAllVolunteers() {
         return ResponseEntity.ok(volunteerService.getAllVolunteers());
     }
 
-    // GET: /api/admin/volunteers/applications
+    // Bütün müraciətlər və filtrləmə
     @GetMapping("/applications")
     public ResponseEntity<List<VolunteerResponseDTO>> getApplications(
             @RequestParam(required = false) String search,
             @RequestParam(required = false) String status) {
-        return ResponseEntity.ok(volunteerService.getFilteredApplications(search, status));
+
+        return ResponseEntity.ok(
+                volunteerService.getFilteredApplications(search, status)
+        );
     }
 
-    // GET: /api/admin/volunteers/{id}
+    // ID-yə görə könüllü və ya müraciət
     @GetMapping("/{id}")
-    public ResponseEntity<VolunteerResponseDTO> getVolunteerById(@PathVariable Long id) {
-        return ResponseEntity.ok(volunteerService.getVolunteerById(id));
+    public ResponseEntity<VolunteerResponseDTO> getVolunteerById(
+            @PathVariable Long id) {
+
+        return ResponseEntity.ok(
+                volunteerService.getVolunteerById(id)
+        );
     }
 
-    // 🟢 DÜZƏLDİldİ: POST: /api/admin/volunteers (Artıq sonundakı /volunteers silindi)
+    // Yeni könüllü yarat
     @PostMapping
-    public ResponseEntity<VolunteerResponseDTO> createVolunteer(@RequestBody VolunteerRequestDTO requestDTO) {
-        return ResponseEntity.ok(volunteerService.createVolunteer(requestDTO));
+    public ResponseEntity<VolunteerResponseDTO> createVolunteer(
+            @RequestBody VolunteerRequestDTO requestDTO) {
+
+        return ResponseEntity.ok(
+                volunteerService.createVolunteer(requestDTO)
+        );
     }
 
-    // PUT: /api/admin/volunteers/{id}
+    // Könüllü məlumatlarını yenilə
     @PutMapping("/{id}")
     public ResponseEntity<VolunteerResponseDTO> updateVolunteer(
             @PathVariable Long id,
             @RequestBody VolunteerRequestDTO requestDTO) {
-        return ResponseEntity.ok(volunteerService.updateVolunteer(id, requestDTO));
+
+        return ResponseEntity.ok(
+                volunteerService.updateVolunteer(id, requestDTO)
+        );
     }
 
-    // DELETE: /api/admin/volunteers/{id}
+    // Könüllünü sil
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteVolunteer(@PathVariable Long id) {
+    public ResponseEntity<String> deleteVolunteer(
+            @PathVariable Long id) {
+
         volunteerService.deleteVolunteer(id);
-        return ResponseEntity.ok("Könüllü uğurla silindi. ID: " + id);
+
+        return ResponseEntity.ok(
+                "Könüllü uğurla silindi. ID: " + id
+        );
     }
 
-    // Komanda dəyişmək -> PUT: /api/admin/volunteers/{id}/team
+    // Könüllünün statusunu dəyiş
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<VolunteerResponseDTO> updateVolunteerStatus(
+            @PathVariable Long id,
+            @RequestParam String status) {
+
+        return ResponseEntity.ok(
+                volunteerService.updateVolunteerStatus(id, status)
+        );
+    }
+
+    // Könüllünü komandaya təyin et
     @PutMapping("/{id}/team")
     public ResponseEntity<VolunteerResponseDTO> assignVolunteerToTeam(
             @PathVariable Long id,
             @RequestParam Long teamId) {
-        return ResponseEntity.ok(volunteerService.assignVolunteerToTeam(id, teamId));
+
+        return ResponseEntity.ok(
+                volunteerService.assignVolunteerToTeam(id, teamId)
+        );
     }
 
-    // Fəaliyyəti bitirmək / Aktivliyi dəyişmək -> PATCH: /api/admin/volunteers/{id}/activity
+    // Könüllünün aktivliyini dəyiş
     @PatchMapping("/{id}/activity")
     public ResponseEntity<VolunteerResponseDTO> updateVolunteerActivity(
             @PathVariable Long id,
             @RequestParam boolean active) {
-        return ResponseEntity.ok(volunteerService.updateVolunteerActivity(id, active));
+
+        return ResponseEntity.ok(
+                volunteerService.updateVolunteerActivity(id, active)
+        );
     }
 
-    // GET: /api/admin/volunteers/teams
+    // Komandalar
     @GetMapping("/teams")
     public ResponseEntity<List<Team>> getAllTeams() {
         return ResponseEntity.ok(volunteerService.getAllTeams());
     }
 
-    // POST: /api/admin/volunteers/teams
     @PostMapping("/teams")
-    public ResponseEntity<Team> createTeam(@RequestBody Map<String, String> request) {
+    public ResponseEntity<Team> createTeam(
+            @RequestBody Map<String, String> request) {
+
         String teamName = request.get("name");
-        return ResponseEntity.ok(volunteerService.createTeam(teamName));
+
+        return ResponseEntity.ok(
+                volunteerService.createTeam(teamName)
+        );
     }
 
-    // GET: /api/admin/volunteers/stats
+    // Dashboard statistikası
     @GetMapping("/stats")
     public ResponseEntity<VolunteerStatsDTO> getDashboardStats() {
-        return ResponseEntity.ok(volunteerService.getVolunteerDashboardStats());
+        return ResponseEntity.ok(
+                volunteerService.getVolunteerDashboardStats()
+        );
     }
 
-    // GET: /api/admin/volunteers/certificates/list
+    // Sertifikat siyahısı
     @GetMapping("/certificates/list")
     public ResponseEntity<List<VolunteerResponseDTO>> getAllVolunteersForCertificates() {
         return ResponseEntity.ok(volunteerService.getAllVolunteers());
     }
 
-    // GET: /api/admin/volunteers/certificates/stats
+    // Sertifikat statistikası
     @GetMapping("/certificates/stats")
     public ResponseEntity<CertificateStatsDTO> getCertificateStats() {
-        return ResponseEntity.ok(volunteerService.getCertificateStats());
+        return ResponseEntity.ok(
+                volunteerService.getCertificateStats()
+        );
     }
 
-    // PUT: /api/admin/volunteers/{id}/issue-certificate
+    // Sertifikat ver
     @PutMapping("/{id}/issue-certificate")
-    public ResponseEntity<VolunteerResponseDTO> issueCertificate(@PathVariable Long id) {
-        return ResponseEntity.ok(volunteerService.issueCertificate(id));
+    public ResponseEntity<VolunteerResponseDTO> issueCertificate(
+            @PathVariable Long id) {
+
+        return ResponseEntity.ok(
+                volunteerService.issueCertificate(id)
+        );
     }
 }
