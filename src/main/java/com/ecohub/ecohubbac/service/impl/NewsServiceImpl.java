@@ -36,8 +36,10 @@ public class NewsServiceImpl implements NewsService {
         return newsList.stream().map(news -> new NewsResponseDTO(
                 news.getId(),
                 news.getCategory() != null ? news.getCategory().getName() : "",
-                news.getTitle(),
-                news.getDescription(),
+                news.getTitleAz(),
+                news.getTitleEn(),
+                news.getDescriptionAz(),
+                news.getDescriptionEn(),
                 news.getDate(),
                 news.getImageUrl()
         )).collect(Collectors.toList());
@@ -51,10 +53,14 @@ public class NewsServiceImpl implements NewsService {
         return new NewsDetailResponseDTO(
                 news.getId(),
                 news.getCategory() != null ? news.getCategory().getName() : "",
-                news.getTitle(),
-                news.getSubtitle(),
-                news.getDescription(),
-                news.getContent(),
+                news.getTitleAz(),
+                news.getTitleEn(),
+                news.getSubtitleAz(),
+                news.getSubtitleEn(),
+                news.getDescriptionAz(),
+                news.getDescriptionEn(),
+                news.getContentAz(),
+                news.getContentEn(),
                 news.getDate(),
                 news.getImageUrl()
         );
@@ -90,10 +96,18 @@ public class NewsServiceImpl implements NewsService {
         News existingNews = newsRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Xəbər tapılmadı: ID " + id));
 
-        existingNews.setTitle(newsDetails.getTitle());
-        existingNews.setSubtitle(newsDetails.getSubtitle());
-        existingNews.setDescription(newsDetails.getDescription());
-        existingNews.setContent(newsDetails.getContent());
+        existingNews.setTitleAz(newsDetails.getTitleAz());
+        existingNews.setTitleEn(newsDetails.getTitleEn());
+
+        existingNews.setSubtitleAz(newsDetails.getSubtitleAz());
+        existingNews.setSubtitleEn(newsDetails.getSubtitleEn());
+
+        existingNews.setDescriptionAz(newsDetails.getDescriptionAz());
+        existingNews.setDescriptionEn(newsDetails.getDescriptionEn());
+
+        existingNews.setContentAz(newsDetails.getContentAz());
+        existingNews.setContentEn(newsDetails.getContentEn());
+
         existingNews.setDate(newsDetails.getDate());
 
         // Əgər yeni şəkil yüklənibsə Cloudinary-ə yükləyirik, əks halda köhnə imageUrl qalır
