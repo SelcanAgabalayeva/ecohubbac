@@ -1,8 +1,10 @@
 package com.ecohub.ecohubbac.entity;
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
 import java.time.LocalDate;
 import java.util.List;
 
@@ -17,7 +19,6 @@ public class Volunteer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Şəxsi məlumatlar (Addım 1)
     @Column(nullable = false)
     private String firstName;
 
@@ -38,7 +39,8 @@ public class Volunteer {
 
     @Column(nullable = false)
     private String phone;
-    private LocalDate createdAt; // Və ya qeydiyyat tarixi hansı adla qeyd olunubsa
+
+    private LocalDate createdAt;
 
     @Column(nullable = false, columnDefinition = "TEXT")
     private String address;
@@ -59,7 +61,6 @@ public class Volunteer {
     @Column(nullable = false)
     private String specialty;
 
-    // Bacarıqlar və maraqlar (Addım 2)
     @Column(nullable = false, columnDefinition = "TEXT")
     private String languages;
 
@@ -70,7 +71,10 @@ public class Volunteer {
     private String canva;
 
     @ElementCollection
-    @CollectionTable(name = "volunteer_interests", joinColumns = @JoinColumn(name = "volunteer_id"))
+    @CollectionTable(
+            name = "volunteer_interests",
+            joinColumns = @JoinColumn(name = "volunteer_id")
+    )
     @Column(name = "interest")
     private List<String> interests;
 
@@ -88,16 +92,19 @@ public class Volunteer {
 
     @Column(columnDefinition = "TEXT")
     private String extraNotes;
+
     private String status = "Yeni";
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "team_id")
-    private Team team;       // Hansı komandaya bağlıdır
+    private Team team;
 
-    private String admissionDate; // Qəbul tarixi (məs: 2026-11-07)
-    private String endDate;       // Fəaliyyətin bitmə tarixi
+    private String admissionDate;
+    private String endDate;
 
-
-    private boolean active = true;          // Aktivlik statusu
+    private boolean active = true;
     private boolean certificateIssued = false;
+
+    @Column(name = "team_leader", nullable = false)
+    private boolean teamLeader = false;
 }

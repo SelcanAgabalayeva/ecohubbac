@@ -1,4 +1,6 @@
+
 package com.ecohub.ecohubbac.dto;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

@@ -123,7 +123,7 @@ public class SecurityConfig {
                         .requestMatchers(
                                 HttpMethod.POST,
                                 "/api/contact",
-                                "/api/volunteers"
+                                "/api/volunteers/apply"
                         ).permitAll()
 
                         // Admin endpoint-ləri
